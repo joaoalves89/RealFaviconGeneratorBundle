@@ -54,6 +54,11 @@ class FaviconGeneratorResponse
      */
     private $version;
 
+    /**
+     * @var string
+     */
+    private $storagePath;
+
     public function __construct($json)
     {
         if ($json == null) {
@@ -86,7 +91,43 @@ class FaviconGeneratorResponse
         $this->setIsFilesInRoot($this->getParam($filesLoc, 'type') == 'root');
         $this->setFilesPath($this->isFilesInRoot() ? '/' : $this->getParam($filesLoc, 'path'));
         $this->setVersion($this->getParam($faviconGenerationResult, 'version', false));
+    }
 
+    /**
+     * Download and extract the files referenced by the response sent back by RealFaviconGenerator.
+     *
+     * @param  string                   $outputDirectory
+     * @throws InvalidArgumentException
+     */
+    public function downloadAndUnpack($outputDirectory, $directoryName = 'favicon_package')
+    {
+        if ($this->getPackageUrl() != null) {
+
+            $packagePath = $outputDirectory . DIRECTORY_SEPARATOR . $directoryName . '.zip';
+
+            $this->downloadFile($this->getPackageUrl(), $packagePath);
+
+            $zip = new \ZipArchive();
+
+            $r = $zip->open($packagePath);
+
+            if ($r === true) {
+
+                $extractedPath = $outputDirectory . DIRECTORY_SEPARATOR . $directoryName;
+
+                if (!file_exists($extractedPath)) {
+                    mkdir($extractedPath);
+                }
+
+                $zip->extractTo($extractedPath);
+                $zip->close();
+
+                $this->setStoragePath($extractedPath);
+
+            } else {
+                throw new InvalidArgumentException('Cannot open package. Invalid Zip file?!');
+            }
+        }
     }
 
     /**
@@ -212,6 +253,22 @@ class FaviconGeneratorResponse
     }
 
     /**
+     * @return string
+     */
+    public function getStoragePath()
+    {
+        return $this->storagePath;
+    }
+
+    /**
+     * @param string $storagePath
+     */
+    public function setStoragePath($storagePath)
+    {
+        $this->storagePath = $storagePath;
+    }
+
+    /**
      * Returns the value of a parameter.
      *
      * @param  array                    $params
@@ -226,6 +283,25 @@ class FaviconGeneratorResponse
             return $params[$paramName];
         } elseif ($throwIfNotFound) {
             throw new InvalidArgumentException("Cannot find parameter " . $paramName);
+        }
+    }
+
+    /**
+     * Downloads a File from a URL to a local path.
+     *
+     * @param  string                   $url
+     * @param  string                   $localPath
+     * @throws InvalidArgumentException
+     */
+    private function downloadFile($url, $localPath)
+    {
+        $content = file_get_contents($url);
+        if ($content === false) {
+            throw new InvalidArgumentException("Cannot download file at " . $url);
+        }
+        $ret = file_put_contents($localPath, $content);
+        if ($ret === false) {
+            throw new InvalidArgumentException("Cannot store content of " . $url . " to " . $localPath);
         }
     }
 
