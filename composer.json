@@ -1,34 +1,21 @@
 {
     "name": "VentureOakLabs/FaviconGeneratorBundle",
-    "description": "Integrate generation of a multiplatform favicon with RealFaviconGenerator into your Symfony application.",
     "type": "symfony-bundle",
-    "authors": [{
+    "description": "Integrate generation of a multiplatform favicon with RealFaviconGenerator into your Symfony application.",
+    "keywords": ["symfony", "RealFaviconGenerator", "Favicon Generator", "Multiplataform favicon", "bundle"],
+    "license": "MIT",
+    "authors": [
+        {
             "name": "João Alves",
             "email": "jalves@ventureoak.com"
-        }],
-    "keywords": [
-        "symfony2",
-        "RealFaviconGenerator",
-        "Favicon Generator",
-        "Multiplataform favicon",
-        "bundle"
-    ],
-    "license": [
-        "MIT"
+        }
     ],
     "require": {
         "php": ">=5.4",
         "symfony/framework-bundle": "~2.3"
     },
     "autoload": {
-        "psr-0": {
-            "Company\\DemoBundle": ""
-        }
+        "psr-0": { "VentureOakLabs\\FaviconGeneratorBundle": "" }
     },
-    "target-dir": "Company/DemoBundle",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "master"
-        }
-    }
+    "target-dir": "VentureOakLabs/FaviconGeneratorBundle"
 }
