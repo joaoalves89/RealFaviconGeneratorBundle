@@ -26,15 +26,6 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
-                ->arrayNode('non_interactive')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('endpoint')
-                            ->defaultValue('http://realfavicongenerator.net/api/favicon')
-                            ->cannotBeEmpty()
-                        ->end()
-                    ->end()
-                ->end()
             ->end()
         ;
 
