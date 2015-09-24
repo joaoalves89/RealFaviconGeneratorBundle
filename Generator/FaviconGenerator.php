@@ -134,6 +134,9 @@ class FaviconGenerator
             'yandex_browser'
         ]);
 
+        // Design for the classic desktop browsers. This section has no parameters. The philosophy behind is that the master picture is usually designed for this purpose.
+        $resolver->setDefaults(['desktop_browser' => array()]);
+
         $resolver->setAllowedTypes('ios', 'array');
         $resolver->setAllowedTypes('windows', 'array');
         $resolver->setAllowedTypes('firefox_app', 'array');

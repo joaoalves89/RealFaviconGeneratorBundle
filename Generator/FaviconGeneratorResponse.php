@@ -13,147 +13,202 @@ use \InvalidArgumentException;
  */
 class FaviconGeneratorResponse
 {
-    const RFG_PACKAGE_URL = 'package_url';
-    const RFG_COMPRESSION = 'compression';
-    const RFG_HTML_CODE = 'html_code';
-    const RFG_FILES_IN_ROOT = 'files_in_root';
-    const RFG_FILES_PATH = 'files_path';
-    const RFG_PREVIEW_PICTURE_URL = 'preview_picture_url';
-    const RFG_CUSTOM_PARAMETER  = 'custom_parameter';
-    const RFG_VERSION = 'version';
-    const RFG_NON_INTERACTIVE_REQUEST = 'non_interactive_request';
-    const RFG_FAVICON_PRODUCTION_PACKAGE_PATH = 'favicon_production_package_path';
-    const RFG_PREVIEW_PATH = 'preview_path';
+    /**
+     * The url with all favicons.
+     *
+     * @var string
+     */
+    private $packageUrl;
 
-    private $params = array();
+    /**
+     * All urls to the files generated.
+     *
+     * @var array
+     */
+    private $filesUrl;
+
+    /**
+     * True If the user chose to compress the pictures, otherwise false.
+     *
+     * @var boolean
+     */
+    private $compression;
+
+    /**
+     * @var string
+     */
+    private $htmlCode;
+
+    /**
+     * @var boolean
+     */
+    private $filesInRoot;
+
+    /**
+     * @var string
+     */
+    private $filesPath;
+
+    /**
+     * @var string
+     */
+    private $version;
 
     public function __construct($json)
     {
-        if ($json == NULL) {
+        if ($json == null) {
             throw new InvalidArgumentException("No response from RealFaviconGenerator");
         }
 
         $response = json_decode($json, true);
 
-        if ($response == NULL) {
+        if ($response == null) {
             throw new InvalidArgumentException("JSON could not be parsed");
         }
 
-        $response = $this->getParam($response, 'favicon_generation_result');
-        $result = $this->getParam($response, 'result');
+        $faviconGenerationResult = $this->getParam($response, 'favicon_generation_result');
+        $result = $this->getParam($faviconGenerationResult, 'result');
         $status = $this->getParam($result, 'status');
 
         if ($status != 'success') {
             $msg = $this->getParam($result, 'error_message', false);
-            $msg = $msg != NULL ? $msg : 'An error occured';
+            $msg = $msg != null ? $msg : 'An error occured';
             throw new InvalidArgumentException($msg);
         }
 
-        $favicon = $this->getParam($response, 'favicon');
-        $this->params[self::RFG_PACKAGE_URL] = $this->getParam($favicon, 'package_url');
-        $this->params[self::RFG_COMPRESSION] = $this->getParam($favicon, 'compression') == 'true';
-        $this->params[self::RFG_HTML_CODE] = $this->getParam($favicon, 'html_code');
+        $favicon = $this->getParam($faviconGenerationResult, 'favicon');
 
-        $filesLoc = $this->getParam($response, 'files_location');
-        $this->params[self::RFG_FILES_IN_ROOT] = $this->getParam($filesLoc, 'type') == 'root';
-        $this->params[self::RFG_FILES_PATH] = $this->params[self::RFG_FILES_IN_ROOT] ? '/' : $this->getParam($filesLoc, 'path');
+        $this->setPackageUrl($this->getParam($favicon, 'package_url'));
+        $this->setFilesUrl($this->getParam($favicon, 'files_urls'));
+        $this->setIsCompressed($this->getParam($favicon, 'compression') == 'true');
+        $this->setHtmlCode($this->getParam($favicon, 'html_code'));
+        $filesLoc = $this->getParam($faviconGenerationResult, 'files_location');
+        $this->setIsFilesInRoot($this->getParam($filesLoc, 'type') == 'root');
+        $this->setFilesPath($this->isFilesInRoot() ? '/' : $this->getParam($filesLoc, 'path'));
+        $this->setVersion($this->getParam($faviconGenerationResult, 'version', false));
 
-        $this->params[self::RFG_PREVIEW_PICTURE_URL] = $this->getParam($response, 'preview_picture_url', false);
-
-        $this->params[self::RFG_CUSTOM_PARAMETER] = $this->getParam($response, 'custom_parameter', false);
-        $this->params[self::RFG_VERSION] = $this->getParam($response, 'version', false);
-
-        $this->params[self::RFG_NON_INTERACTIVE_REQUEST] = $this->getParam($response, 'non_interactive_request', false);
     }
 
     /**
-     * For example: <code>"http://realfavicongenerator.net/files/1234f5d2s34f3ds2/package.zip"</code>
+     * @return string
      */
     public function getPackageUrl()
     {
-        return $this->params[self::RFG_PACKAGE_URL];
+        return $this->packageUrl;
     }
 
     /**
-     * For example: <code>"&lt;link ..."</code>
-     */
-    public function getHtmlCode()
-    {
-        return $this->params[self::RFG_HTML_CODE];
-    }
-
-    /**
-     * <code>true</code> if the user chose to compress the pictures, <code>false</code> otherwise.
+     * @return boolean
      */
     public function isCompressed()
     {
-        return $this->params[self::RFG_COMPRESSION];
+        return $this->compression;
     }
 
     /**
-     * <code>true</code> if the favicon files are to be stored in the root directory of the target web site, <code>false</code> otherwise.
+     * @return string
+     */
+    public function getHtmlCode()
+    {
+        return $this->htmlCode;
+    }
+
+    /**
+     * @return boolean
      */
     public function isFilesInRoot()
     {
-        return $this->params[self::RFG_FILES_IN_ROOT];
+        return $this->filesInRoot;
     }
 
     /**
-     * Indicate where the favicon files should be stored in the target web site. For example: <code>"/"</code>, <code>"/path/to/icons"</code>.
+     * @return string
      */
-    public function getFilesLocation()
+    public function getFilesPath()
     {
-        return $this->params[self::RFG_FILES_PATH];
+        return $this->filesPath;
     }
 
     /**
-     * For example: <code>"http://realfavicongenerator.net/files/1234f5d2s34f3ds2/preview.png"</code>
+     * The url of the zip with all the favicons.
+     *
+     * @param string $packageUrl
      */
-    public function getPreviewUrl()
+    public function setPackageUrl($packageUrl)
     {
-        return $this->params[self::RFG_PREVIEW_PICTURE_URL];
+        $this->packageUrl = $packageUrl;
     }
 
     /**
-     * Return the customer parameter, as it was transmitted during the invocation of the API.
+     * If the user choosed to compress the images.
+     *
+     * @param boolean $compression
      */
-    public function getCustomParameter()
+    public function setIsCompressed($compression)
     {
-        return $this->params[self::RFG_CUSTOM_PARAMETER];
+        $this->compression = $compression;
     }
 
     /**
-     * Return version of RealFaviconGenerator used to generate the favicon. Save this value to later check for updates.
+     * The HTML to include the favicons.
+     *
+     * @param string $htmlCode
+     */
+    public function setHtmlCode($htmlCode)
+    {
+        $this->htmlCode = $htmlCode;
+    }
+
+    /**
+     * If the files are to put on the root.
+     *
+     * @param boolean $filesInRoot
+     */
+    public function setIsFilesInRoot($filesInRoot)
+    {
+        $this->filesInRoot = $filesInRoot;
+    }
+
+    /**
+     * The path to the files.
+     *
+     * @param string $filesPath
+     */
+    public function setFilesPath($filesPath)
+    {
+        $this->filesPath = $filesPath;
+    }
+
+    /**
+     * @return string
      */
     public function getVersion()
     {
-        return $this->params[self::RFG_VERSION];
+        return $this->version;
     }
 
     /**
-     * Directory where the production favicon files are stored.
-     * These are the files to deployed to the targeted web site.
-     * Method <code>downloadAndUnpack</code> must be called first in order to populate this field.
+     * @param string $version
      */
-    public function getPackagePath()
+    public function setVersion($version)
     {
-        return $this->params[self::RFG_FAVICON_PRODUCTION_PACKAGE_PATH];
+        $this->version = $version;
     }
 
     /**
-     * Path to the preview picture.
+     * @return array
      */
-    public function getPreviewPath()
+    public function getFilesUrl()
     {
-        return $this->params[self::RFG_PREVIEW_PATH];
+        return $this->filesUrl;
     }
 
     /**
-     * Non-interative request.
+     * @param array $filesUrl
      */
-    public function getNonInteractiveRequest()
+    public function setFilesUrl($filesUrl)
     {
-        return $this->params[self::RFG_NON_INTERACTIVE_REQUEST];
+        $this->filesUrl = $filesUrl;
     }
 
     /**
