@@ -5,12 +5,12 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="venture_oak_labs_favicon_generator.generator.class">VentureOakLabs\FaviconGeneratorBundle\Generator\FaviconGenerator</parameter>
+        <parameter key="venture_oak_labs.favicon_generator.generator.class">VentureOakLabs\FaviconGeneratorBundle\Generator\FaviconGenerator</parameter>
     </parameters>
 
     <services>
-        <service id="venture_oak_labs_favicon_generator.generator" class="%venture_oak_labs_favicon_generator.generator.class%">
-            <argument>%venture_oak_labs_favicon_generator.api_key%</argument>
+        <service id="venture_oak_labs.favicon_generator.generator" class="%venture_oak_labs.favicon_generator.generator.class%">
+            <argument>%venture_oak_labs.favicon_generator.api_key%</argument>
         </service>
     </services>
 
