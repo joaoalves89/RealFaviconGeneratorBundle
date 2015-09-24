@@ -1,5 +1,5 @@
 {
-    "name": "VentureOakLabs/FaviconGeneratorBundle",
+    "name": "venture-oak-labs/favicon-generator-bundle",
     "type": "symfony-bundle",
     "description": "Integrate generation of a multiplatform favicon with RealFaviconGenerator into your Symfony application.",
     "keywords": ["symfony", "RealFaviconGenerator", "Favicon Generator", "Multiplataform favicon", "bundle"],
