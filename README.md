@@ -11,7 +11,7 @@ Add RealFaviconGeneratorBundle by running this command from the terminal at the 
 your Symfony project:
 
 ```bash
-php composer.phar require stuff
+composer require venture-oak-labs/favicon-generator-bundle
 ```
 
 
